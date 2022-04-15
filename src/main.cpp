@@ -106,11 +106,11 @@ void writeOutLines( string filePath, std::vector<std::vector<cv::Point3d> > &lin
 	}
 	fclose( fp2 );
 }
-pcl::PointCloud<pcl::PointXYZ>::Ptr getLineCloud(PointCloud<float> &in_cloud, const std::vector<std::vector<cv::Point3d>> &lines, const double scale, int point_num)
+pcl::PointCloud<pcl::PointXYZ>::Ptr getResultCloud(PointCloud<float> &in_cloud, const std::vector<std::vector<cv::Point3d>> &lines, std::vector<PLANE> &planes, const double scale, int point_num)
 {
 	pcl::PointCloud<pcl::PointXYZ>::Ptr out_cloud(new pcl::PointCloud<pcl::PointXYZ>);
 	out_cloud->reserve(point_num);
-	// write out bounding polygon result
+	// add line points to result pointcloud
 	for (int p = 0; p < lines.size(); ++p)
 	{
 		int R = rand() % 255;
@@ -136,6 +136,38 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr getLineCloud(PointCloud<float> &in_cloud, co
 			out_cloud->push_back(point);
 		}
 	}
+	// add plane points to result pointcloud
+	for (int p = 0; p < planes.size(); ++p)
+	{
+		int R = rand() % 255;
+		int G = rand() % 255;
+		int B = rand() % 255;
+
+		for (int i = 0; i < planes[p].lines3d.size(); ++i)
+		{
+			for (int j = 0; j < planes[p].lines3d[i].size(); ++j)
+			{
+				cv::Point3d dev = planes[p].lines3d[i][j][1] - planes[p].lines3d[i][j][0];
+				double L = sqrt(dev.x * dev.x + dev.y * dev.y + dev.z * dev.z);
+				int k = L / (scale / 10);
+
+				double x = planes[p].lines3d[i][j][0].x, y = planes[p].lines3d[i][j][0].y, z = planes[p].lines3d[i][j][0].z;
+				double dx = dev.x / k, dy = dev.y / k, dz = dev.z / k;
+				for (int j = 0; j < k; ++j)
+				{
+					x += dx;
+					y += dy;
+					z += dz;
+
+					pcl::PointXYZ point;
+					point.x = x;
+					point.y = y;
+					point.z = z;
+					out_cloud->push_back(point);
+				}
+			}
+		}
+	}
 	return out_cloud;
 }
 
@@ -157,7 +189,7 @@ void writeOutPCDFile(const string file_path, PointCloud<float> &in_cloud)
 	int
 	main()
 {
-	string fileData = "/home/digital/sgk/data/campus/pointcloud_map.pcd";
+	string fileData = "/home/digital/sgk/data/campus/GlobalMap.pcd";
 	string fileOut = "/home/digital/sgk/data/campus//line_map.pcd";
 
 	// read in data
@@ -173,10 +205,10 @@ void writeOutPCDFile(const string file_path, PointCloud<float> &in_cloud)
 	cout<<"lines number: "<<lines.size()<<endl;
 	cout<<"planes number: "<<planes.size()<<endl;
 
-	PointCloud<float> line_pointcloud;
-	pcl::PointCloud<pcl::PointXYZ>::Ptr line_pcl_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-	line_pcl_cloud = getLineCloud(line_pointcloud, lines, detector.scale, detector.pointNum);
-	pcl::io::savePCDFileBinary(fileOut, *line_pcl_cloud);
+	PointCloud<float> result_pointcloud;
+	pcl::PointCloud<pcl::PointXYZ>::Ptr result_pcl_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+	result_pcl_cloud = getResultCloud(result_pointcloud, lines, planes, detector.scale, detector.pointNum);
+	pcl::io::savePCDFileBinary(fileOut, *result_pcl_cloud);
 	// writeOutPlanes( fileOut, planes, detector.scale );
 	// writeOutLines( fileOut, lines, detector.scale );
 	// writeOutPCDFile(fileOut, *line_pcl_cloud);

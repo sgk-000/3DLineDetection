@@ -597,7 +597,7 @@ void LineDetection3D::outliersRemoval( std::vector<PLANE> &planes )
 	double thAngle = 12.5;
 	double thCosAngleParal = cos(thAngle/180.0*CV_PI);
 	double thCosAngleOrtho = cos((90.0-thAngle)/180.0*CV_PI);
-	double thNonStructLineRatio = 10;
+	double thNonStructLineRatio = 5;
 	double thStructPlane = 60*this->scale;
 
 	std::vector<int> isPlaneGood(planes.size(), 0);
