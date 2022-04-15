@@ -180,13 +180,13 @@ void LineFunctions::lineFittingSVD(cv::Point *points, int length, std::vector<do
 /************************************************************************/
 
 
-void PCAFunctions::Ori_PCA( PointCloud<double> &cloud, int k, std::vector<PCAInfo> &pcaInfos, double &scale, double &magnitd )
+void PCAFunctions::Ori_PCA( PointCloud<float> &cloud, int k, std::vector<PCAInfo> &pcaInfos, double &scale, double &magnitd )
 {
 	double MINVALUE = 1e-7;
 	int pointNum = cloud.pts.size();
 
 	// 1. build kd-tree
-	typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor<double, PointCloud<double> >, PointCloud<double>, 3/*dim*/ > my_kd_tree_t;
+	typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor<double, PointCloud<float> >, PointCloud<float>, 3/*dim*/ > my_kd_tree_t;
 	my_kd_tree_t index(3 /*dim*/, cloud, KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
 	index.buildIndex();
 

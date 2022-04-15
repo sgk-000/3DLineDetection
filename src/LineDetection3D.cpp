@@ -15,7 +15,7 @@ LineDetection3D::~LineDetection3D()
 {
 }
 
-void LineDetection3D::run( PointCloud<double> &data, int k, std::vector<PLANE> &planes, std::vector<std::vector<cv::Point3d> > &lines, std::vector<double> &ts  )
+void LineDetection3D::run( PointCloud<float> &data, int k, std::vector<PLANE> &planes, std::vector<std::vector<cv::Point3d> > &lines, std::vector<double> &ts  )
 {
 	this->pointData = data;
 	this->pointNum = data.pts.size();
@@ -563,7 +563,7 @@ void LineDetection3D::lineFromMask( cv::Mat &mask, int thLineLengthPixel, std::v
 	
 	std::vector<std::vector<cv::Point> > contours;  
 	std::vector<cv::Vec4i> hierarchy;  
-	cv::findContours(mask2, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+	cv::findContours(mask2, contours, hierarchy, RETR_LIST, CHAIN_APPROX_NONE);
 
 	// B. line fitting from the contours
 	for ( int i=0; i<contours.size(); ++i )
